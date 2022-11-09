@@ -23,8 +23,11 @@ def get_data():
     print(azucar)
 
     pagina = common.get_selenium_page("https://supermercado.laanonimaonline.com/almacen/endulzantes/n2_21/")
-    azucares_disponibles = pagina.find_elements(By.XPATH,"//ul[@id='products']/li")
+    azucares_disponibles = pagina.find_elements(By.XPATH,"//div[contains(@id,'prod_')]")
     
+    for azucar in azucares_disponibles:
+        print(azucar)
+        
     locaciones = pagina.find_elements(By.XPATH,"")
     print(locaciones)
     for locacion in locaciones:

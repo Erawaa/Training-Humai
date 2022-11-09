@@ -2,6 +2,7 @@ from datetime import datetime
 import requests
 from selenium import webdriver
 import mysql.connector
+import unicodedata
 
 mydb = mysql.connector.connect(
     host = "localhost",
@@ -64,6 +65,10 @@ def write_csv(data):
 
     return file_directory
 
+def normalize_accent(word: str):
+    return ''.join(c for c in unicodedata.normalize('NFD', word)
+                  if unicodedata.category(c) != 'Mn').lower()
+
 def get_page(url: str):
     response = requests.request("GET",url)
     print(response.text)
@@ -76,10 +81,38 @@ def get_selenium_page(url: str):
     return driver
 
 def get_tipo_azucar(nombre: str):
-    id = 1
+    mycursor = mydb.cursor()
+    sql = "Select IdTipoAzucar, nombre from TiposAzucar"
+    mycursor.execute(sql)
+    result = mycursor.fetchall()
+
+    nombre_normalized = normalize_accent(nombre)
+    for azucar in result:
+        azucar_normalized = normalize_accent(azucar[1]).split()
+        total_matches = 0
+        for an in azucar_normalized:
+            if nombre_normalized.find(an) != -1:
+                total_matches += 1
+        if total_matches == len(azucar_normalized):
+            id = azucar[0]
+
     return id
 def get_marca_azucar(nombre: str):
-    id = 2
+    mycursor = mydb.cursor()
+    sql = "Select IdMarca, Nombre from Marcas"
+    mycursor.execute(sql)
+    result = mycursor.fetchall()
+
+    nombre_normalized = normalize_accent(nombre)
+    for marca in result:
+        marca_normalized = normalize_accent(marca[1]).split()
+        total_matches = 0
+        for m in marca_normalized:
+            if nombre_normalized.find(m) != -1:
+                total_matches += 1
+        if total_matches == len(marca_normalized):
+            id = marca[0]
+
     return id
 
 def get_provincia(nombre: str):
