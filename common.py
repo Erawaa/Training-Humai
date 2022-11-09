@@ -65,11 +65,11 @@ def write_csv(data):
 
     return file_directory
 
-def normalize_accent(word: str):
+def normalize_accent(word: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', word)
                   if unicodedata.category(c) != 'Mn').lower()
 
-def get_page(url: str):
+def get_page(url: str) -> None:
     response = requests.request("GET",url)
     print(response.text)
 
@@ -80,7 +80,7 @@ def get_selenium_page(url: str):
     driver.get(url)
     return driver
 
-def get_tipo_azucar(nombre: str):
+def get_tipo_azucar(nombre: str) -> int:
     mycursor = mydb.cursor()
     sql = "Select IdTipoAzucar, nombre from TiposAzucar"
     mycursor.execute(sql)
@@ -94,10 +94,10 @@ def get_tipo_azucar(nombre: str):
             if nombre_normalized.find(an) != -1:
                 total_matches += 1
         if total_matches == len(azucar_normalized):
-            id = azucar[0]
+            id = int(azucar[0])
 
     return id
-def get_marca_azucar(nombre: str):
+def get_marca_azucar(nombre: str) -> int:
     mycursor = mydb.cursor()
     sql = "Select IdMarca, Nombre from Marcas"
     mycursor.execute(sql)
@@ -111,11 +111,11 @@ def get_marca_azucar(nombre: str):
             if nombre_normalized.find(m) != -1:
                 total_matches += 1
         if total_matches == len(marca_normalized):
-            id = marca[0]
+            id = int(marca[0])
 
     return id
 
-def get_provincia(nombre: str):
+def get_provincia(nombre: str) -> int:
     
     id = 3
     return id

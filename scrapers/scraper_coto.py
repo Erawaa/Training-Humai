@@ -12,10 +12,7 @@ sys.path.insert(1,'/home/tomi/Tp_humai_2/Training-Humai')
 import common
 
 
-
-
-
-def get_data():
+def get_data() -> None:
     driver = common.get_selenium_page("https://www.cotodigital3.com.ar/sitios/cdigi/browse/catalogo-almac%C3%A9n-endulzantes-az%C3%BAcar/_/N-1w1x9xa")
     azucares_disponibles = driver.find_elements(By.XPATH,"//ul[@id='products']/li")
     for azucares in azucares_disponibles:
