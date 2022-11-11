@@ -1,5 +1,6 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+from lxml import etree
+import re
+
 
 import os
 import csv
@@ -11,43 +12,45 @@ import sys
 sys.path.insert(1,'/home/tomi/Tp_humai_2/Training-Humai')
 import common
 
+localidades = {"BUENOS AIRES": "laanonimasucursalnombre=9%20DE%20JULIO&laanonimasucursal=158", "CHUBUT": "laanonimasucursalnombre=COMODORO%20RIVADAVIA&laanonimasucursal=47", "CORDOBA": "laanonimasucursalnombre=MARCOS%20JUARES&laanonimasucursal=160", "CORRIENTES":"laanonimasucursalnombre=GOYA&laanonimasucursal=144","LA PAMPA":"laanonimasucursalnombre=GENERAL%20PICO&laanonimasucursal=105", "NEUQUEN":"laanonimasucursalnombre=CUTRAL%20CO&laanonimasucursal=154","RIO NEGRO":"laanonimasucursalnombre=ALLEN&laanonimasucursal=82","SANTA CRUZ":"laanonimasucursalnombre=RIO%20GALLEGOS&laanonimasucursal=59","SANTA FE":"laanonimasucursalnombre=ESPERANZA&laanonimasucursal=124","Tierra del Fuego, Antártida e Islas del Atlántico Sur":"laanonimasucursalnombre=RIO%20GRANDE&laanonimasucursal=70"}
 
-localidades = ['BUENOS AIRES','CHUBUT','CORDOBA','CORRIENTES','LA PAMPA','NEUQUEN','RIO NEGRO','SANTA CRUZ','SANTA FE','TIERRA DEL FUEGO','Localidad ','9 DE JULIO','AZUL','BRAGADO','CARLOS CASARES','CHACABUCO','CHIVILCOY','GENERAL VILLEGAS','JUNIN','LINCOLN','MERCEDES','PEHUAJO','TRENQUE LAUQUEN','Localidad ','COMODORO RIVADAVIA','ESQUEL','PUERTO MADRYN','RADA TILLY','TRELEW','Localidad ','MARCOS JUARES','MORTEROS','Localidad ','GOYA','Localidad ','GENERAL PICO','SANTA ROSA','Localidad ','CENTENARIO','CUTRAL CO','JUNIN DE LOS ANDES','NEUQUEN','PLOTTIER','SAN MARTIN DE LOS ANDES','VILLA LA ANGOSTURA','ZAPALA','Localidad ','ALLEN','CATRIEL','CHOELE CHOEL','CINCO SALTOS','CIPOLLETTI','EL BOLSON','GENERAL ROCA','SAN CARLOS DE BARILOCHE','VIEDMA','VILLA REGINA','Localidad ','CALETA OLIVIA','RIO GALLEGOS','Localidad ','ESPERANZA','RAFAELA','VENADO TUERTO','Localidad ','RIO GRANDE','USHUAIA','Sucursal','AV. BUSTILLO KM 13 12974','ALBARRACIN 601','Sucursal','AV. SAN JUAN 51','ANTARTIDA ARGENTINA 1111','Sucursal','ROCA 623','Sucursal','SAN JUAN 1425','Sucursal','ALVARO BARROS 1408','Sucursal','BELGRANO 292','Sucursal','CHUBUT 1400','Sucursal','ROCA 710','Sucursal','GUEMES 741','Sucursal','13 DE DICIEMBRE 150','Sucursal','AV. DEL TRABAJO 469','Sucursal','MAIPU 1332','Sucursal','AV.SAN MARTIN 1605','Sucursal','LOS ÑIRES 2237','Sucursal','AV. CIPOLLETTI 502','Sucursal','9 DE JULIO 574','Sucursal','JUAN B.JUSTO 301','Sucursal','SARMIENTO 36','Sucursal','AV. FEDERICO SOAREZ 52','Sucursal','RIVADAVIA 2070','Sucursal','RUTA 7 KM 260','Sucursal','AMEGHINO 1250','Sucursal','ITUZAINGO 147','Sucursal','TTE. GRAL. ROCA 450','Sucursal','AV. GARCIA SALINAS 1100','Sucursal','CALLE 7 1064','Sucursal','VICENTE LOPEZ 40','Sucursal','RIVAROLA 310','Sucursal','SAN MARTIN 200','Sucursal','CORONEL SUAREZ 465','Sucursal','RIVADAVIA 53','Sucursal','BELGRANO 1998','Sucursal','EL CHILCO 83','Sucursal','LUQUE 1200','Sucursal','SAN MARTIN 507','Sucursal','MONSEÑOR CANEVA 560','Sucursal','ING. EDUARDO GARRO 538','Sucursal','CALLE 40 937','Sucursal','AV. PRIMEROS CONSEJALES 256','Sucursal','AVENIDA DEL LIBERTADOR 75','Sucursal','HECTOR GIL 64','Sucursal','BV 9 DE JULIO 2339','Sucursal','MIGUEL EGUINOA 1802','Sucursal','AMEGHINO 1097','Sucursal','AGUSTIN ALVAREZ 261','Sucursal','BV. LARDIZABAL 250','Sucursal','AV.CASEY 799']
 
+def set_page_headers(susursal_nombre: str, sucursal_id: int):
+    headers = {
+        #'sec-ch-ua': '"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"',
+        #'X-XSRF-TOKEN': 'DGkGaciOhtRHqhJ9L88heRrgIs0+SQeTWM8QTRG3Zdg',
+        #'sec-ch-ua-mobile': '?0',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+        #'Content-Type': 'application/json',
+        #'Accept': 'application/json, text/plain, */*',
+        #'X-Requested-With': 'XMLHttpRequest',
+        #'sec-ch-ua-platform': '"Linux"',
+        'cookie': f"cartelLogueado=0; laanonimaapp=0; laanonimaordenlistado=relevancia; _gcl_au=1.1.852268858.1665082108; mostrarConfSucursal=0; _hjSessionUser_2758890=eyJpZCI6IjNjNGNiZTY0LTI2ZjEtNTliMy05Zjc2LTE4ODVlYTNlMzdjYyIsImNyZWF0ZWQiOjE2NjUwODIxMDg2NDMsImV4aXN0aW5nIjp0cnVlfQ==; mostrar_ventana_sucursales=0; _ga_C7MTQBFBQN=GS1.1.1667241461.1.1.1667241906.58.0.0; _ce.s=v~c738ebf679b780b971cd0aca97b17f7530da4192~vpv~0~ir~1~v11nv~-1~v11.sla~1667241906490~v11.s~2293ede0-594c-11ed-8b12-8f65aedc919a~v11.send~1667241906444; laanonima=fa0d631e030e28fbfcdcb779cd217223; _gid=GA1.2.400910927.1668018208; laanonimadatos=YTo1OntzOjE2OiJjb2RpZ29fc2VndXJpZGFkIjtzOjY6ImM0OHp6ayI7czoxMzoibnVtZXJvY2Fycml0byI7czozMjoiYjFlNzY3OWYzOTliZjFiMzk1MTYyMGMzMzUyMzFjYjgiO3M6MTU6InRfbnVtZXJvY2Fycml0byI7czo3OiJhbm9uaW1vIjtzOjEyOiJtb250b19taW5pbW8iO2Q6MDtzOjE2OiJjYXJyaXRvX2FudGVyaW9yIjtpOjA7fQ%3D%3D; _hjSession_2758890=eyJpZCI6IjllNDRhMzYwLTk4NmQtNDdiZi04NGY5LThlNThjM2Y1MDM4MSIsImNyZWF0ZWQiOjE2NjgwMjU0Mjk5NTgsImluU2FtcGxlIjpmYWxzZX0=; _hjAbsoluteSessionInProgress=0; _hjIncludedInSessionSample=0; _ga_W3SKYF6FJF=GS1.1.1668025429.9.1.1668026961.39.0.0; _ga=GA1.2.1422790702.1665082108; laanonimasucursalnombre={susursal_nombre}; laanonimasucursal={sucursal_id}"
+    }
+    return headers
 
 def get_data() -> None:
-    pag = common.get_selenium_page("https://supermercado.laanonimaonline.com/almacen/endulzantes/n2_21/")
-
-    azucar = pag.find_elements(By.XPATH,"//div[@id='maq_pie']")
-
-    print(azucar)
-
-    pagina = common.get_selenium_page("https://supermercado.laanonimaonline.com/almacen/endulzantes/n2_21/")
-    azucares_disponibles = pagina.find_elements(By.XPATH,"//div[contains(@id,'prod_')]")
-    
-    for azucar in azucares_disponibles:
-        print(azucar)
+    for localidad, direccion in localidades.items():
+        url = f"https://supermercado.laanonimaonline.com/almacen/endulzantes/n2_21/?{direccion}"
         
-    locaciones = pagina.find_elements(By.XPATH,"")
-    print(locaciones)
-    for locacion in locaciones:
+        sucursal_nombre = re.search("laanonimasucursalnombre=.*&", url).group().replace("laanonimasucursalnombre=","").replace("&","")
+        sucursal_id = re.search("aanonimasucursal=.*", url).group().replace("aanonimasucursal=","")
+        
+        headers = set_page_headers(sucursal_nombre, sucursal_id)
+        page = common.get_page(url,headers)
+        dom = etree.HTML(str(page))
 
-        print(locacion)
+        tot_azucares = dom.xpath('//div[@class="maq_col_2"]//div[contains(@class,"caja1 producto")]/div[contains(@id,"prod_")]')
+        for azucar in tot_azucares:
+            titulo = azucar.xpath("./div[@class='col1_listado']/div/a")[0].text
+            link_pre = azucar.xpath("./div[@class='col1_listado']/div/a/@href")[0]
+            link = f"https://supermercado.laanonimaonline.com{link_pre}"
+            precio_entero = azucar.xpath("./div[@class='col2_listado']/div/div[@class='contenedor-plus']/div/div")[0].text.replace(".","")
+            precio_decimal = azucar.xpath("./div[@class='col2_listado']/div/div[@class='contenedor-plus']/div/div/span")[0].text
+            precio_final = float(f"{precio_entero}{precio_decimal}".replace('$','').replace(",",".").strip())
+            
+            common.insertar_azucar(titulo, precio_final, link, localidad)
     
-    #azucares_disponibles = driver.find_elements(By.XPATH,"//ul[@id='products']/li")
-    #for azucares in azucares_disponibles:
-        #titulo = azucares.find_element(By.XPATH, ".//div[@class='leftList']//a").text
-        #link = azucares.find_element(By.XPATH, ".//div[@class='leftList']//a").get_attribute('href')
-        #precio = azucares.find_elements(By.XPATH, ".//div[@class='info_discount']/span[contains(@class,'atg_store_productPrice')]/span[contains(@class,'atg_store_newPrice')]")
-        #precio_final = ""
-        #for p in precio:
-            #precio_final = p.text
-        #precio_final = precio_final.replace('$','').replace(",",".")       
-        #if (titulo and precio_final and link):
-            #common.insertar_azucar(titulo, float(precio_final), link)
-
     print("Finalizado")
-    driver.quit()
-
 
 get_data()
