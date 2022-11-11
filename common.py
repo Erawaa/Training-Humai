@@ -3,6 +3,10 @@ import requests
 from selenium import webdriver
 import mysql.connector
 import unicodedata
+from bs4 import BeautifulSoup
+
+
+
 
 mydb = mysql.connector.connect(
     host = "localhost",
@@ -21,12 +25,13 @@ def get_last_id():
     return id
 
 
-def insertar_azucar(nombreProducto: str, precio: float, link: str):
+def insertar_azucar(nombreProducto: str, precio: float, link: str, provincia: str):
     mycursor = mydb.cursor()
     id = get_last_id() + 1
-    IdProvincia = get_provincia(nombreProducto)
+
     IdMarca = get_marca_azucar(nombreProducto)
     IdTipoAzucar = get_tipo_azucar(nombreProducto)
+    IdProvincia = get_provincia(provincia)
 
     sql = "Insert into productos (IdProducto, Nombre, IdTipoAzucar, IdMarca, Precio, Link, FechaBajada, IdProvincia) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
     values = (id, nombreProducto, IdTipoAzucar, IdMarca, precio, link, datetime.now(), IdProvincia)
@@ -69,18 +74,22 @@ def normalize_accent(word: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', word)
                   if unicodedata.category(c) != 'Mn').lower()
 
-def get_page(url: str) -> None:
-    response = requests.request("GET",url)
-    print(response.text)
+
+def get_page(url: str, page_headers: dict):
+    response = requests.request("GET",url, headers=page_headers)
+    page = BeautifulSoup(response.content, 'html.parser')
+    return page 
 
 def get_selenium_page(url: str):
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
-    driver = webdriver.Chrome('/home/tomi/Tp_humai_2/Training-Humai/chromedriver',options = options)
+    driver = webdriver.Chrome('/home/tomi/Tp_humai_2/Training-Humai/chromedriver',headers=set_page_headers(),options = options)
+    
     driver.get(url)
     return driver
 
 def get_tipo_azucar(nombre: str) -> int:
+    id = -1
     mycursor = mydb.cursor()
     sql = "Select IdTipoAzucar, nombre from TiposAzucar"
     mycursor.execute(sql)
@@ -97,7 +106,9 @@ def get_tipo_azucar(nombre: str) -> int:
             id = int(azucar[0])
 
     return id
+    
 def get_marca_azucar(nombre: str) -> int:
+    id = -1
     mycursor = mydb.cursor()
     sql = "Select IdMarca, Nombre from Marcas"
     mycursor.execute(sql)
@@ -116,6 +127,14 @@ def get_marca_azucar(nombre: str) -> int:
     return id
 
 def get_provincia(nombre: str) -> int:
-    
-    id = 3
+    id = -1
+    if  nombre == "":
+        return id 
+    else:
+        mycursor = mydb.cursor()
+        sql = f"Select IdProvincia from Provincias where Nombre like '{nombre}'"
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        for idprovincia in result:
+            id = (idprovincia[0])
     return id
