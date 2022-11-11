@@ -1,16 +1,27 @@
 from lxml import etree
 import re
+import logging
+
+logging.basicConfig(
+    filename='anonima.log',
+    format= '%(asctime)s.%(msecs)03d %(levelname)s - : %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
 
 import os
-import csv
-from datetime import datetime
-import subprocess
-
-
 import sys
-sys.path.insert(1,'/home/tomi/Tp_humai_2/Training-Humai')
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent_directory = os.path.dirname(current)
+sys.path.insert(1,parent_directory)
 import common
+import clean_data
+
+
+#sys.path.insert(1,'/home/tomi/Tp_humai_2/Training-Humai')
+#import common
+#import clean_data
 
 localidades = {"BUENOS AIRES": "laanonimasucursalnombre=9%20DE%20JULIO&laanonimasucursal=158", "CHUBUT": "laanonimasucursalnombre=COMODORO%20RIVADAVIA&laanonimasucursal=47", "CORDOBA": "laanonimasucursalnombre=MARCOS%20JUARES&laanonimasucursal=160", "CORRIENTES":"laanonimasucursalnombre=GOYA&laanonimasucursal=144","LA PAMPA":"laanonimasucursalnombre=GENERAL%20PICO&laanonimasucursal=105", "NEUQUEN":"laanonimasucursalnombre=CUTRAL%20CO&laanonimasucursal=154","RIO NEGRO":"laanonimasucursalnombre=ALLEN&laanonimasucursal=82","SANTA CRUZ":"laanonimasucursalnombre=RIO%20GALLEGOS&laanonimasucursal=59","SANTA FE":"laanonimasucursalnombre=ESPERANZA&laanonimasucursal=124","Tierra del Fuego, Antártida e Islas del Atlántico Sur":"laanonimasucursalnombre=RIO%20GRANDE&laanonimasucursal=70"}
 
@@ -30,9 +41,13 @@ def set_page_headers(susursal_nombre: str, sucursal_id: int):
     return headers
 
 def get_data() -> None:
+    '''Funcion utilizada para traer todos los datos de azucar de anonima
+    La idea es iterar sobre las locaciones disponibles para poder traer los datos y luego limpiar la data que pueda haber
+    quedado sin matchear en la base de datos. A diferencia de maxiconsumos en este es necesario pasarle un header al requiere
+    de la pagina para que efectivice el filtro por locacion'''
     for localidad, direccion in localidades.items():
         url = f"https://supermercado.laanonimaonline.com/almacen/endulzantes/n2_21/?{direccion}"
-        
+        logging.info(f"Starting with {url}")
         sucursal_nombre = re.search("laanonimasucursalnombre=.*&", url).group().replace("laanonimasucursalnombre=","").replace("&","")
         sucursal_id = re.search("aanonimasucursal=.*", url).group().replace("aanonimasucursal=","")
         
@@ -41,16 +56,35 @@ def get_data() -> None:
         dom = etree.HTML(str(page))
 
         tot_azucares = dom.xpath('//div[@class="maq_col_2"]//div[contains(@class,"caja1 producto")]/div[contains(@id,"prod_")]')
+        
+        logging.info(f"Tot to process: {len(tot_azucares)}")
         for azucar in tot_azucares:
-            titulo = azucar.xpath("./div[@class='col1_listado']/div/a")[0].text
-            link_pre = azucar.xpath("./div[@class='col1_listado']/div/a/@href")[0]
-            link = f"https://supermercado.laanonimaonline.com{link_pre}"
-            precio_entero = azucar.xpath("./div[@class='col2_listado']/div/div[@class='contenedor-plus']/div/div")[0].text.replace(".","")
-            precio_decimal = azucar.xpath("./div[@class='col2_listado']/div/div[@class='contenedor-plus']/div/div/span")[0].text
-            precio_final = float(f"{precio_entero}{precio_decimal}".replace('$','').replace(",",".").strip())
-            
-            common.insertar_azucar(titulo, precio_final, link, localidad)
+            try:
+                titulo = azucar.xpath("./div[@class='col1_listado']/div/a")[0].text
+                link_pre = azucar.xpath("./div[@class='col1_listado']/div/a/@href")[0]
+                link = f"https://supermercado.laanonimaonline.com{link_pre}"
+                precio_entero = azucar.xpath("./div[@class='col2_listado']/div/div[@class='contenedor-plus']/div/div")[0].text.replace(".","")
+                precio_decimal = azucar.xpath("./div[@class='col2_listado']/div/div[@class='contenedor-plus']/div/div/span")[0].text
+                precio_final = float(f"{precio_entero}{precio_decimal}".replace('$','').replace(",",".").strip())
+
+                common.insertar_azucar(titulo, precio_final, link, localidad)
+            except Exception as exp:
+                logging.error(f"Exception found: {exp}")
+    logging.info(f"Finished scraping")
     
-    print("Finalizado")
+    logging.info(f"Start cleaning brand")
+    try:
+        clean_data.clean_marca()
+        logging.info(f"Finished cleaning brand")
+    except Exception as exp:
+        logging.info(f"Error on cleaning brand {exp}")
+
+    logging.info(f"Start cleaning sugar")
+    try:
+        clean_data.clean_tipo_azucar()
+        logging.info(f"Finished cleaning sugar")
+    except Exception as exp:
+        logging.info(f"Error on cleaning sugar {exp}")
 
 get_data()
+

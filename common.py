@@ -1,6 +1,5 @@
 from datetime import datetime
 import requests
-from selenium import webdriver
 import mysql.connector
 import unicodedata
 from bs4 import BeautifulSoup
@@ -16,6 +15,7 @@ mydb = mysql.connector.connect(
 )
 
 def get_last_id():
+    '''Consigo el ultimo id de la base para insertarlo al nuevo producto'''
     mycursor = mydb.cursor()
     sql = "Select MAX(IdProducto) from productos"
     mycursor.execute(sql)
@@ -26,6 +26,7 @@ def get_last_id():
 
 
 def insertar_azucar(nombreProducto: str, precio: float, link: str, provincia: str):
+    '''Se inserta en la base de datos la azucar scrapeada'''
     mycursor = mydb.cursor()
     id = get_last_id() + 1
 
@@ -40,55 +41,24 @@ def insertar_azucar(nombreProducto: str, precio: float, link: str, provincia: st
     #mycursor.close()
     #mydb.close()
 
-def get_project_path():
-    q = "find /home -type d -name 'Tp_humai_2' -print"
-    result = subprocess.getoutput(q).split("\n")
-    for path in result:
-        if "Training-Humai" in path:
-            final_path = path
-    
-    return final_path
-
-
-def get_file_directory(file_name):
-    file_directory = os.path.join(get_project_path(), file_name)
-    return file_directory
-
-def write_csv(data):
-    file_name = 'coto_' + datetime.today().strftime('%d-%m-%Y') + '.csv'
-    file_directory = get_file_directory(file_name)
-
-    if os.path.isfile(file_directory):
-        with open(file_directory, 'a', encoding='UTF8') as file:
-            writer = csv.writer(file, delimiter='\t')
-            writer.writerow(data)
-    else:
-        with open(file_directory, 'w', encoding='UTF8') as file:
-            writer = csv.writer(file, delimiter='\t')
-            writer.writerow(["nombre", "IdTipoAzucar","IdMarca","Precio","link","FechaBajada","IdProvincia"])
-            writer.writerow(data)
-
-    return file_directory
 
 def normalize_accent(word: str) -> str:
+    '''Normalizacion de campos como acentos o mayusculas y minusculas, utilizado comunmente para comparar cadenas de texto'''
     return ''.join(c for c in unicodedata.normalize('NFD', word)
                   if unicodedata.category(c) != 'Mn').lower()
 
 
 def get_page(url: str, page_headers: dict):
+    '''Devuelve una pagina formateada con beatiful soup'''
     response = requests.request("GET",url, headers=page_headers)
     page = BeautifulSoup(response.content, 'html.parser')
     return page 
 
-def get_selenium_page(url: str):
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    driver = webdriver.Chrome('/home/tomi/Tp_humai_2/Training-Humai/chromedriver',headers=set_page_headers(),options = options)
-    
-    driver.get(url)
-    return driver
 
 def get_tipo_azucar(nombre: str) -> int:
+    '''Consigue el tipo de azucar en base a cuantos matcheos tiene el nombre del producto.
+    Cuando la cantidad de matches de la base es igual a la del nombre del producto entonces recien ahi se le asigna el id correspondiente.
+    En caso de no encontrar se pone -1 y luego con la limpieza de datos se asigna'''
     id = -1
     mycursor = mydb.cursor()
     sql = "Select IdTipoAzucar, nombre from TiposAzucar"
@@ -106,8 +76,11 @@ def get_tipo_azucar(nombre: str) -> int:
             id = int(azucar[0])
 
     return id
-    
+
 def get_marca_azucar(nombre: str) -> int:
+    '''Consigue la marca en base a cuantos matcheos tiene el nombre del producto.
+    Cuando la cantidad de matches de la base es igual a la del nombre del producto entonces recien ahi se le asigna el id correspondiente.
+    En caso de no encontrar se pone -1 y luego con la limpieza de datos se asigna'''
     id = -1
     mycursor = mydb.cursor()
     sql = "Select IdMarca, Nombre from Marcas"
@@ -127,6 +100,7 @@ def get_marca_azucar(nombre: str) -> int:
     return id
 
 def get_provincia(nombre: str) -> int:
+    '''Consigue la provincia en base al nombre de provincia '''
     id = -1
     if  nombre == "":
         return id 

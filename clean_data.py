@@ -1,9 +1,13 @@
 import re
+import os
 import sys
-sys.path.insert(1,'/home/tomi/Tp_humai_2/Training-Humai')
+
+current = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(1,current)
 import common
 
 def clean_tipo_azucar():
+    '''Se encarga de limpiar los campos que hayan dado erroneo en la base de datos sobre el tipo de azucar'''
     mycursor = common.mydb.cursor()
     sql = 'Select IdProducto, Nombre from productos where IdTipoAzucar = -1'
     mycursor.execute(sql)
@@ -29,6 +33,7 @@ def clean_tipo_azucar():
         common.mydb.commit()
 
 def clean_marca():
+    '''Se encarga de limpiar los campos que hayan dado erroneo en la base de datos sobre la marca'''
     mycursor = common.mydb.cursor()
     sql = 'Select IdProducto, Nombre from productos where IdMarca = -1'
     mycursor.execute(sql)
