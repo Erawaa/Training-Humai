@@ -3,6 +3,7 @@ import unicodedata
 from bs4 import BeautifulSoup
 from google.cloud import bigquery
 from google.oauth2 import service_account
+import requests
 
 KEY_PATH = "/key.json"
 PROJECT_AND_DATASET = "alumnos-sandbox.precios_productos"
@@ -87,7 +88,7 @@ def get_marca_azucar(nombre: str) -> int:
     
     marca_id = -1
 
-    sql_query = "SELECT IdMarca, Nombre FROM `{PROJECT_AND_DATASET}.marca`"
+    sql_query = f"SELECT IdMarca, Nombre FROM `{PROJECT_AND_DATASET}.marcas`"
     query = client.query(sql_query)
     result = query.result()
 
