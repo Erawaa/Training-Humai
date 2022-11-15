@@ -1,17 +1,25 @@
 import re
 import os
 import sys
+from google.cloud import bigquery
+from google.oauth2 import service_account
 
 current = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(1,current)
 import common
 
+KEY_PATH = "/key.json"
+PROJECT_AND_DATASET = "alumnos-sandbox.precios_productos"
+
+credentials = service_account.Credentials.from_service_account_file(KEY_PATH)
+client = bigquery.Client(credentials=credentials, project=credentials.project_id)
+
 def clean_tipo_azucar():
     '''Se encarga de limpiar los campos que hayan dado erroneo en la base de datos sobre el tipo de azucar'''
-    mycursor = common.mydb.cursor()
-    sql = 'Select IdProducto, Nombre from productos where IdTipoAzucar = -1'
-    mycursor.execute(sql)
-    result = mycursor.fetchall()
+
+    sql_query = f'SELECT IdProducto, Nombre FROM `{PROJECT_AND_DATASET}.precios_azucar` WHERE IdTipoAzucar = -1'
+    query = client.query(sql_query)
+    result = query.result()
 
     for falla_tipo_azucar in result:
         id_azucar = -1
@@ -26,22 +34,22 @@ def clean_tipo_azucar():
             id_azucar = 3
         elif re.search("azucar", nombre):
             id_azucar = 1
-        
-        sql = "Update productos set IdTipoAzucar = %s where IdProducto = %s"
-        values = (id_azucar, int(falla_tipo_azucar[0]))
-        mycursor.execute(sql, values)
-        common.mydb.commit()
+
+        sql_query = f"UPDATE `{PROJECT_AND_DATASET}.precios_azucar` SET IdTipoAzucar = { id_azucar } where IdProducto = { int(falla_tipo_azucar[0]) }"
+
+        query = client.query(sql_query)
+        result = query.result()
 
 def clean_marca():
     '''Se encarga de limpiar los campos que hayan dado erroneo en la base de datos sobre la marca'''
-    mycursor = common.mydb.cursor()
-    sql = 'Select IdProducto, Nombre from productos where IdMarca = -1'
-    mycursor.execute(sql)
-    result = mycursor.fetchall()
 
-    sql_marcas = 'Select IdMarca, Nombre from Marcas'
-    mycursor.execute(sql_marcas)
-    result_marcas = mycursor.fetchall()
+    sql_query = 'SELECT IdProducto, Nombre FROM `{PROJECT_AND_DATASET}.precios_azucar` WHERE IdMarca = -1'
+    query = client.query(sql_query)
+    result = query.result()
+
+    sql_marcas = 'SELECT IdMarca, Nombre FROM `{PROJECT_AND_DATASET}.marcas`'
+    query = client.query(sql_marcas)
+    result_marcas = query.result()
 
 
     for falla_marca in result:
@@ -53,7 +61,7 @@ def clean_marca():
             if re.search(f"{marcas[1].lower()}", nombre.lower()):
                 id_marca = int(marcas[0])
                 break
-        sql = "Update productos set IdMarca = %s where IdProducto = %s"
-        values = (id_marca, int(falla_marca[0]))
-        mycursor.execute(sql, values)
-        common.mydb.commit()
+            
+        sql_query = f"UPDATE `{PROJECT_AND_DATASET}.precios_azucar` SET IdMarca = { id_marca } where IdProducto = { int(falla_marca[0]) }"
+        query = client.query(sql_query)
+        query.result()
