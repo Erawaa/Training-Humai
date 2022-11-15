@@ -8,7 +8,10 @@ current = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(1,current)
 import common
 
-KEY_PATH = "/key.json"
+import os
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+KEY_PATH = os.path.join(HERE, 'key.json')
 PROJECT_AND_DATASET = "alumnos-sandbox.precios_productos"
 
 credentials = service_account.Credentials.from_service_account_file(KEY_PATH)

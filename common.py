@@ -4,8 +4,10 @@ from bs4 import BeautifulSoup
 from google.cloud import bigquery
 from google.oauth2 import service_account
 import requests
+import os
 
-KEY_PATH = "/key.json"
+HERE = os.path.dirname(os.path.abspath(__file__))
+KEY_PATH = os.path.join(HERE, 'key.json')
 PROJECT_AND_DATASET = "alumnos-sandbox.precios_productos"
 
 credentials = service_account.Credentials.from_service_account_file(KEY_PATH)
