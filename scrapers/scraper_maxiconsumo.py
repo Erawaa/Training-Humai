@@ -6,7 +6,7 @@ import sys
 import logging
 
 logging.basicConfig(
-    filename='maxiconsumo.log',
+    filename='/home/grupo2/Training-Humai/scrapers/maxiconsumo.log',
     format= '%(asctime)s.%(msecs)03d %(levelname)s - : %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
     )

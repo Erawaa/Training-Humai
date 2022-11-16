@@ -3,7 +3,7 @@ import re
 import logging
 
 logging.basicConfig(
-    filename='anonima.log',
+    filename='/home/grupo2/Training-Humai/scrapers/anonima.log',
     format= '%(asctime)s.%(msecs)03d %(levelname)s - : %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
     level=20
