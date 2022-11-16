@@ -35,6 +35,9 @@ def get_last_id() -> int:
         azucar_id = row[0]
         break
 
+    if not azucar_id:
+        azucar_id = 0
+
     return azucar_id
 
 

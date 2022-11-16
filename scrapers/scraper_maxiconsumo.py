@@ -18,7 +18,7 @@ import common
 import clean_data
 
 
-localidades = {"BUENOS AIRES": "sucursal_burzaco", "CHUBUT": "sucursal_comodoro_rivadavia", "CABA": "sucursal_capital", "MENDOZA": "sucursal_mendoza", "Tierra del Fuego, Antártida e Islas del Atlántico Sur": "sucursal_rio_grande", "SAN JUAN": "sucursal_san_juan", "SAN LUIS": "sucursal_san_luis", "SANTA FE": "sucursal_santa_fe", "CHACO": "sucursal_chaco"}
+localidades = {"BUENOS AIRES": "sucursal_burzaco", "CHUBUT": "sucursal_comodoro_rivadavia", "CABA": "sucursal_capital", "MENDOZA": "sucursal_mendoza", "Tierra Del Fuego, Antártida E Islas Del Atlántico Sur": "sucursal_rio_grande", "SAN JUAN": "sucursal_san_juan", "SAN LUIS": "sucursal_san_luis", "SANTA FE": "sucursal_santa_fe", "CHACO": "sucursal_chaco"}
 
 
 def get_data() -> None:
