@@ -5,7 +5,8 @@ import logging
 logging.basicConfig(
     filename='anonima.log',
     format= '%(asctime)s.%(msecs)03d %(levelname)s - : %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=20
     )
 
 
@@ -66,6 +67,8 @@ def get_data() -> None:
                 precio_entero = azucar.xpath("./div[@class='col2_listado']/div/div[@class='contenedor-plus']/div/div")[0].text.replace(".","")
                 precio_decimal = azucar.xpath("./div[@class='col2_listado']/div/div[@class='contenedor-plus']/div/div/span")[0].text
                 precio_final = float(f"{precio_entero}{precio_decimal}".replace('$','').replace(",",".").strip())
+
+                logging.info(f"{titulo} {precio_final} {link} {localidad}")
 
                 common.insertar_azucar(titulo, precio_final, link, localidad)
             except Exception as exp:
