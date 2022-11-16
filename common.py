@@ -127,7 +127,7 @@ def get_provincia(nombre: str) -> int:
     if nombre == "":
         return provincia_id
     else:
-        sql_query = f"SELECT IdProvincia FROM `{PROJECT_AND_DATASET}.provincias` WHERE Nombre LIKE '{nombre}'"
+        sql_query = f"SELECT IdProvincia FROM `{PROJECT_AND_DATASET}.provincias` WHERE Nombre LIKE '{nombre.title()}' OR Nombre LIKE '{nombre.upper()}'"
         query = client.query(sql_query)
         result = query.result()
 
