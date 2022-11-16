@@ -5,6 +5,7 @@ from google.cloud import bigquery
 from google.oauth2 import service_account
 import requests
 import os
+import unidecode
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 KEY_PATH = os.path.join(HERE, 'key.json')
@@ -38,8 +39,10 @@ def insertar_azucar(nombre_producto: str, precio: float, link: str, provincia: s
     id_tipo_azucar = get_tipo_azucar(nombre_producto)
     id_azucar = get_provincia(provincia)
 
+    nombre = unidecode.unidecode(nombre_producto)
+
     sql_query = f"""INSERT INTO `{PROJECT_AND_DATASET}.precios_azucar` (IdProducto, Nombre, IdTipoAzucar, IdMarca, Precio, Link, FechaBajada, IdProvincia)
-    VALUES ({ azucar_id }, { nombre_producto }, { id_tipo_azucar }, { id_marca }, { precio }, { link }, { datetime.now() }, { id_azucar })"""
+    VALUES ({ azucar_id }, { nombre }, { id_tipo_azucar }, { id_marca }, { precio }, { link }, { datetime.now() }, { id_azucar })"""
 
     query = client.query(sql_query)
     query.result()
