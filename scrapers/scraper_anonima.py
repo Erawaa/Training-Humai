@@ -24,7 +24,7 @@ import clean_data
 #import common
 #import clean_data
 
-localidades = {"BUENOS AIRES": "laanonimasucursalnombre=9%20DE%20JULIO&laanonimasucursal=158", "CHUBUT": "laanonimasucursalnombre=COMODORO%20RIVADAVIA&laanonimasucursal=47", "CORDOBA": "laanonimasucursalnombre=MARCOS%20JUARES&laanonimasucursal=160", "CORRIENTES":"laanonimasucursalnombre=GOYA&laanonimasucursal=144","LA PAMPA":"laanonimasucursalnombre=GENERAL%20PICO&laanonimasucursal=105", "NEUQUEN":"laanonimasucursalnombre=CUTRAL%20CO&laanonimasucursal=154","RIO NEGRO":"laanonimasucursalnombre=ALLEN&laanonimasucursal=82","SANTA CRUZ":"laanonimasucursalnombre=RIO%20GALLEGOS&laanonimasucursal=59","SANTA FE":"laanonimasucursalnombre=ESPERANZA&laanonimasucursal=124","Tierra del Fuego, Antártida e Islas del Atlántico Sur":"laanonimasucursalnombre=RIO%20GRANDE&laanonimasucursal=70"}
+localidades = {"BUENOS AIRES": "laanonimasucursalnombre=9%20DE%20JULIO&laanonimasucursal=158", "CHUBUT": "laanonimasucursalnombre=COMODORO%20RIVADAVIA&laanonimasucursal=47", "CÓRDOBA": "laanonimasucursalnombre=MARCOS%20JUARES&laanonimasucursal=160", "CORRIENTES":"laanonimasucursalnombre=GOYA&laanonimasucursal=144","LA PAMPA":"laanonimasucursalnombre=GENERAL%20PICO&laanonimasucursal=105", "NEUQUÉN":"laanonimasucursalnombre=CUTRAL%20CO&laanonimasucursal=154","RÍO NEGRO":"laanonimasucursalnombre=ALLEN&laanonimasucursal=82","SANTA CRUZ":"laanonimasucursalnombre=RIO%20GALLEGOS&laanonimasucursal=59","SANTA FE":"laanonimasucursalnombre=ESPERANZA&laanonimasucursal=124","Tierra del Fuego, Antártida e Islas del Atlántico Sur":"laanonimasucursalnombre=RIO%20GRANDE&laanonimasucursal=70"}
 
 
 def set_page_headers(susursal_nombre: str, sucursal_id: int):
