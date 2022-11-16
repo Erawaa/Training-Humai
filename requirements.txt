@@ -5,3 +5,5 @@ pandas
 db-dtypes
 lxml
 beautifulsoup4
+unidecode
+
