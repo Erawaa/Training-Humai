@@ -7,6 +7,13 @@ import requests
 import os
 import unidecode
 
+logging.basicConfig(
+    filename='anonima.log',
+    format= '%(asctime)s.%(msecs)03d %(levelname)s - : %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=20
+    )
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 KEY_PATH = os.path.join(HERE, 'key.json')
 PROJECT_AND_DATASET = "alumnos-sandbox.precios_productos"
@@ -43,6 +50,8 @@ def insertar_azucar(nombre_producto: str, precio: float, link: str, provincia: s
 
     sql_query = f"""INSERT INTO `{PROJECT_AND_DATASET}.precios_azucar` (IdProducto, Nombre, IdTipoAzucar, IdMarca, Precio, Link, FechaBajada, IdProvincia)
     VALUES ({ azucar_id }, "{ nombre }", { id_tipo_azucar }, { id_marca }, { precio }, "{ link }", { datetime.now() }, { id_azucar })"""
+
+    logging.info(f"Query: {sql_query}")
 
     query = client.query(sql_query)
     query.result()
