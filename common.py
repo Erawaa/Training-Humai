@@ -42,7 +42,7 @@ def insertar_azucar(nombre_producto: str, precio: float, link: str, provincia: s
     nombre = unidecode.unidecode(nombre_producto)
 
     sql_query = f"""INSERT INTO `{PROJECT_AND_DATASET}.precios_azucar` (IdProducto, Nombre, IdTipoAzucar, IdMarca, Precio, Link, FechaBajada, IdProvincia)
-    VALUES ({ azucar_id }, { nombre }, { id_tipo_azucar }, { id_marca }, { precio }, { link }, { datetime.now() }, { id_azucar })"""
+    VALUES ({ azucar_id }, "{ nombre }", { id_tipo_azucar }, { id_marca }, { precio }, "{ link }", "{ datetime.now() }", { id_azucar })"""
 
     query = client.query(sql_query)
     query.result()
