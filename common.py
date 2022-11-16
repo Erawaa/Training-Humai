@@ -9,7 +9,7 @@ import unidecode
 import logging
 
 logging.basicConfig(
-    filename='anonima.log',
+    filename='common.log',
     format= '%(asctime)s.%(msecs)03d %(levelname)s - : %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
     level=20
@@ -50,9 +50,10 @@ def insertar_azucar(nombre_producto: str, precio: float, link: str, provincia: s
     nombre = unidecode.unidecode(nombre_producto)
 
     sql_query = f"""INSERT INTO `{PROJECT_AND_DATASET}.precios_azucar` (IdProducto, Nombre, IdTipoAzucar, IdMarca, Precio, Link, FechaBajada, IdProvincia)
-    VALUES ({ azucar_id }, "{ nombre }", { id_tipo_azucar }, { id_marca }, { precio }, "{ link }", { datetime.now() }, { id_azucar })"""
+    VALUES ({ azucar_id }, "{ nombre }", { id_tipo_azucar }, { id_marca }, { precio }, "{ link }", "{ datetime.now().date() }", { id_azucar })"""
 
-    logging.info(f"Query: {sql_query}")
+    logging.info(sql_query)
+    print(sql_query)
 
     query = client.query(sql_query)
     query.result()
