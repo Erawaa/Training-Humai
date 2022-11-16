@@ -6,6 +6,7 @@ from google.oauth2 import service_account
 import requests
 import os
 import unidecode
+import logging
 
 logging.basicConfig(
     filename='anonima.log',
